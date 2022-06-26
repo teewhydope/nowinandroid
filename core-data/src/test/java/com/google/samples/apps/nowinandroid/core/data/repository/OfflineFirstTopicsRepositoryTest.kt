@@ -19,12 +19,12 @@ package com.google.samples.apps.nowinandroid.core.data.repository
 import com.google.samples.apps.nowinandroid.core.data.Synchronizer
 import com.google.samples.apps.nowinandroid.core.data.model.asEntity
 import com.google.samples.apps.nowinandroid.core.data.testdoubles.CollectionType
-import com.google.samples.apps.nowinandroid.core.data.testdoubles.TestNiaNetwork
+import com.google.samples.apps.nowinandroid.core.data.testdoubles.TestNiaNetworkDataSource
 import com.google.samples.apps.nowinandroid.core.data.testdoubles.TestTopicDao
 import com.google.samples.apps.nowinandroid.core.database.dao.TopicDao
 import com.google.samples.apps.nowinandroid.core.database.model.TopicEntity
 import com.google.samples.apps.nowinandroid.core.database.model.asExternalModel
-import com.google.samples.apps.nowinandroid.core.datastore.NiaPreferences
+import com.google.samples.apps.nowinandroid.core.datastore.NiaPreferencesDataSource
 import com.google.samples.apps.nowinandroid.core.datastore.test.testUserPreferencesDataStore
 import com.google.samples.apps.nowinandroid.core.model.data.Topic
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkTopic
@@ -42,9 +42,9 @@ class OfflineFirstTopicsRepositoryTest {
 
     private lateinit var topicDao: TopicDao
 
-    private lateinit var network: TestNiaNetwork
+    private lateinit var network: TestNiaNetworkDataSource
 
-    private lateinit var niaPreferences: NiaPreferences
+    private lateinit var niaPreferences: NiaPreferencesDataSource
 
     private lateinit var synchronizer: Synchronizer
 
@@ -54,16 +54,15 @@ class OfflineFirstTopicsRepositoryTest {
     @Before
     fun setup() {
         topicDao = TestTopicDao()
-        network = TestNiaNetwork()
-        niaPreferences = NiaPreferences(
+        network = TestNiaNetworkDataSource()
+        niaPreferences = NiaPreferencesDataSource(
             tmpFolder.testUserPreferencesDataStore()
         )
         synchronizer = TestSynchronizer(niaPreferences)
 
         subject = OfflineFirstTopicsRepository(
             topicDao = topicDao,
-            network = network,
-            niaPreferences = niaPreferences
+            network = network
         )
     }
 
@@ -75,17 +74,6 @@ class OfflineFirstTopicsRepositoryTest {
                     .first()
                     .map(TopicEntity::asExternalModel),
                 subject.getTopicsStream()
-                    .first()
-            )
-        }
-
-    @Test
-    fun offlineFirstTopicsRepository_news_resources_for_interests_is_backed_by_news_resource_dao() =
-        runTest {
-            Assert.assertEquals(
-                niaPreferences.followedTopicIds
-                    .first(),
-                subject.getFollowedTopicIdsStream()
                     .first()
             )
         }
@@ -181,52 +169,6 @@ class OfflineFirstTopicsRepositoryTest {
             Assert.assertEquals(
                 network.latestChangeListVersion(CollectionType.Topics),
                 synchronizer.getChangeListVersions().topicVersion
-            )
-        }
-
-    @Test
-    fun offlineFirstTopicsRepository_toggle_followed_topics_logic_delegates_to_nia_preferences() =
-        runTest {
-            subject.toggleFollowedTopicId(followedTopicId = "0", followed = true)
-
-            Assert.assertEquals(
-                setOf("0"),
-                subject.getFollowedTopicIdsStream()
-                    .first()
-            )
-
-            subject.toggleFollowedTopicId(followedTopicId = "1", followed = true)
-
-            Assert.assertEquals(
-                setOf("0", "1"),
-                subject.getFollowedTopicIdsStream()
-                    .first()
-            )
-
-            Assert.assertEquals(
-                niaPreferences.followedTopicIds
-                    .first(),
-                subject.getFollowedTopicIdsStream()
-                    .first()
-            )
-        }
-
-    @Test
-    fun offlineFirstTopicsRepository_set_followed_topics_logic_delegates_to_nia_preferences() =
-        runTest {
-            subject.setFollowedTopicIds(followedTopicIds = setOf("1", "2"))
-
-            Assert.assertEquals(
-                setOf("1", "2"),
-                subject.getFollowedTopicIdsStream()
-                    .first()
-            )
-
-            Assert.assertEquals(
-                niaPreferences.followedTopicIds
-                    .first(),
-                subject.getFollowedTopicIdsStream()
-                    .first()
             )
         }
 }

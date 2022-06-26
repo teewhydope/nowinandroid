@@ -204,7 +204,7 @@ A repository may depend on one or more data sources. For example, the `OfflineFi
    </td>
   </tr>
   <tr>
-   <td>NiaPreferences
+   <td>NiaPreferencesDataSource
    </td>
    <td><a href="https://developer.android.com/topic/libraries/architecture/datastore">Proto DataStore</a>
    </td>
@@ -212,7 +212,7 @@ A repository may depend on one or more data sources. For example, the `OfflineFi
    </td>
   </tr>
   <tr>
-   <td>NiANetwork
+   <td>NiaNetworkDataSource
    </td>
    <td>Remote API accessed using Retrofit
    </td>
@@ -276,7 +276,7 @@ View models receive streams of data as cold [flows](https://kotlin.github.io/kot
 
 **Example: Displaying followed topics and authors**
 
-The `FollowingViewModel` exposes `uiState` as a `StateFlow<FollowingUiState>`. This hot flow is created by combining four data streams:
+The `InterestsViewModel` exposes `uiState` as a `StateFlow<InterestsUiState>`. This hot flow is created by combining four data streams:
 
 
 
@@ -287,7 +287,7 @@ The `FollowingViewModel` exposes `uiState` as a `StateFlow<FollowingUiState>`. T
 
 The list of `Author`s is mapped to a new list of `FollowableAuthor`s. `FollowableAuthor` is a wrapper for `Author` which also indicates whether the current user is following that author. The same transformation is applied for the list of `Topic`s.
 
-The two new lists are used to create a `FollowingUiState.Interests` state which is exposed to the UI.
+The two new lists are used to create a `InterestsUiState.Interests` state which is exposed to the UI.
 
 
 ### Processing user interactions
@@ -296,7 +296,7 @@ User actions are communicated from UI elements to view models using regular meth
 
 **Example: Following a topic**
 
-The `FollowingScreen` takes a lambda expression named `followTopic` which is supplied from `FollowingViewModel.followTopic`. Each time the user taps on a topic to follow this method is called. The view model then processes this action by informing the topics repository.
+The `InterestsScreen` takes a lambda expression named `followTopic` which is supplied from `InterestsViewModel.followTopic`. Each time the user taps on a topic to follow this method is called. The view model then processes this action by informing the topics repository.
 
 
 ## Further reading

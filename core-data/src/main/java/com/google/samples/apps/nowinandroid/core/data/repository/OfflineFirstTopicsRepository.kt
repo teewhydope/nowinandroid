@@ -23,9 +23,8 @@ import com.google.samples.apps.nowinandroid.core.database.dao.TopicDao
 import com.google.samples.apps.nowinandroid.core.database.model.TopicEntity
 import com.google.samples.apps.nowinandroid.core.database.model.asExternalModel
 import com.google.samples.apps.nowinandroid.core.datastore.ChangeListVersions
-import com.google.samples.apps.nowinandroid.core.datastore.NiaPreferences
 import com.google.samples.apps.nowinandroid.core.model.data.Topic
-import com.google.samples.apps.nowinandroid.core.network.NiANetwork
+import com.google.samples.apps.nowinandroid.core.network.NiaNetworkDataSource
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkTopic
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +36,7 @@ import kotlinx.coroutines.flow.map
  */
 class OfflineFirstTopicsRepository @Inject constructor(
     private val topicDao: TopicDao,
-    private val network: NiANetwork,
-    private val niaPreferences: NiaPreferences,
+    private val network: NiaNetworkDataSource,
 ) : TopicsRepository {
 
     override fun getTopicsStream(): Flow<List<Topic>> =
@@ -47,14 +45,6 @@ class OfflineFirstTopicsRepository @Inject constructor(
 
     override fun getTopic(id: String): Flow<Topic> =
         topicDao.getTopicEntity(id).map { it.asExternalModel() }
-
-    override suspend fun setFollowedTopicIds(followedTopicIds: Set<String>) =
-        niaPreferences.setFollowedTopicIds(followedTopicIds)
-
-    override suspend fun toggleFollowedTopicId(followedTopicId: String, followed: Boolean) =
-        niaPreferences.toggleFollowedTopicId(followedTopicId, followed)
-
-    override fun getFollowedTopicIdsStream() = niaPreferences.followedTopicIds
 
     override suspend fun syncWith(synchronizer: Synchronizer): Boolean =
         synchronizer.changeListSync(

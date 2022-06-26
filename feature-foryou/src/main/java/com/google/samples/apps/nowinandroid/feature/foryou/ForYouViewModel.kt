@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.saveable
 import com.google.samples.apps.nowinandroid.core.data.repository.AuthorsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.NewsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.TopicsRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
 import com.google.samples.apps.nowinandroid.core.model.data.FollowableAuthor
 import com.google.samples.apps.nowinandroid.core.model.data.FollowableTopic
 import com.google.samples.apps.nowinandroid.core.model.data.NewsResource
@@ -51,26 +52,25 @@ import kotlinx.coroutines.launch
 @OptIn(SavedStateHandleSaveableApi::class)
 @HiltViewModel
 class ForYouViewModel @Inject constructor(
-    private val authorsRepository: AuthorsRepository,
-    private val topicsRepository: TopicsRepository,
+    authorsRepository: AuthorsRepository,
+    topicsRepository: TopicsRepository,
     private val newsRepository: NewsRepository,
+    private val userDataRepository: UserDataRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val followedInterestsState: StateFlow<FollowedInterestsState> =
-        combine(
-            authorsRepository.getFollowedAuthorIdsStream(),
-            topicsRepository.getFollowedTopicIdsStream(),
-        ) { followedAuthors, followedTopics ->
-            if (followedAuthors.isEmpty() && followedTopics.isEmpty()) {
-                None
-            } else {
-                FollowedInterests(
-                    authorIds = followedAuthors,
-                    topicIds = followedTopics
-                )
+        userDataRepository.userDataStream
+            .map { userData ->
+                if (userData.followedAuthors.isEmpty() && userData.followedTopics.isEmpty()) {
+                    None
+                } else {
+                    FollowedInterests(
+                        authorIds = userData.followedAuthors,
+                        topicIds = userData.followedTopics
+                    )
+                }
             }
-        }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -103,7 +103,7 @@ class ForYouViewModel @Inject constructor(
         mutableStateOf<Set<String>>(emptySet())
     }
 
-    val feedState: StateFlow<ForYouFeedState> =
+    val feedState: StateFlow<ForYouFeedUiState> =
         combine(
             followedInterestsState,
             snapshotFlow { inProgressTopicSelection },
@@ -114,7 +114,7 @@ class ForYouViewModel @Inject constructor(
 
             when (followedInterestsUserState) {
                 // If we don't know the current selection state, emit loading.
-                Unknown -> flowOf<ForYouFeedState>(ForYouFeedState.Loading)
+                Unknown -> flowOf<ForYouFeedUiState>(ForYouFeedUiState.Loading)
                 // If the user has followed topics, use those followed topics to populate the feed
                 is FollowedInterests -> {
                     newsRepository.getNewsResourcesStream(
@@ -126,7 +126,7 @@ class ForYouViewModel @Inject constructor(
                 // on the in-progress interests selections, if there are any.
                 None -> {
                     if (inProgressTopicSelection.isEmpty() && inProgressAuthorSelection.isEmpty()) {
-                        flowOf<ForYouFeedState>(ForYouFeedState.Success(emptyList()))
+                        flowOf<ForYouFeedUiState>(ForYouFeedUiState.Success(emptyList()))
                     } else {
                         newsRepository.getNewsResourcesStream(
                             filterTopicIds = inProgressTopicSelection,
@@ -143,10 +143,10 @@ class ForYouViewModel @Inject constructor(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = ForYouFeedState.Loading
+                initialValue = ForYouFeedUiState.Loading
             )
 
-    val interestsSelectionState: StateFlow<ForYouInterestsSelectionState> =
+    val interestsSelectionState: StateFlow<ForYouInterestsSelectionUiState> =
         combine(
             followedInterestsState,
             topicsRepository.getTopicsStream(),
@@ -157,8 +157,8 @@ class ForYouViewModel @Inject constructor(
             inProgressAuthorSelection ->
 
             when (followedInterestsUserState) {
-                Unknown -> ForYouInterestsSelectionState.Loading
-                is FollowedInterests -> ForYouInterestsSelectionState.NoInterestsSelection
+                Unknown -> ForYouInterestsSelectionUiState.Loading
+                is FollowedInterests -> ForYouInterestsSelectionUiState.NoInterestsSelection
                 None -> {
                     val topics = availableTopics.map { topic ->
                         FollowableTopic(
@@ -174,9 +174,9 @@ class ForYouViewModel @Inject constructor(
                     }
 
                     if (topics.isEmpty() && authors.isEmpty()) {
-                        ForYouInterestsSelectionState.Loading
+                        ForYouInterestsSelectionUiState.Loading
                     } else {
-                        ForYouInterestsSelectionState.WithInterestsSelection(
+                        ForYouInterestsSelectionUiState.WithInterestsSelection(
                             topics = topics,
                             authors = authors
                         )
@@ -187,7 +187,7 @@ class ForYouViewModel @Inject constructor(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = ForYouInterestsSelectionState.Loading
+                initialValue = ForYouInterestsSelectionUiState.Loading
             )
 
     fun updateTopicSelection(topicId: String, isChecked: Boolean) {
@@ -232,8 +232,8 @@ class ForYouViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            topicsRepository.setFollowedTopicIds(inProgressTopicSelection)
-            authorsRepository.setFollowedAuthorIds(inProgressAuthorSelection)
+            userDataRepository.setFollowedTopicIds(inProgressTopicSelection)
+            userDataRepository.setFollowedAuthorIds(inProgressAuthorSelection)
             // Clear out the old selection, in case we return to onboarding
             withMutableSnapshot {
                 inProgressTopicSelection = emptySet()
@@ -245,7 +245,7 @@ class ForYouViewModel @Inject constructor(
 
 private fun Flow<List<NewsResource>>.mapToFeedState(
     savedNewsResources: Set<String>
-): Flow<ForYouFeedState> =
+): Flow<ForYouFeedUiState> =
     filterNot { it.isEmpty() }
         .map { newsResources ->
             newsResources.map { newsResource ->
@@ -255,5 +255,5 @@ private fun Flow<List<NewsResource>>.mapToFeedState(
                 )
             }
         }
-        .map<List<SaveableNewsResource>, ForYouFeedState>(ForYouFeedState::Success)
-        .onStart { emit(ForYouFeedState.Loading) }
+        .map<List<SaveableNewsResource>, ForYouFeedUiState>(ForYouFeedUiState::Success)
+        .onStart { emit(ForYouFeedUiState.Loading) }

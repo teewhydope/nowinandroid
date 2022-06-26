@@ -21,12 +21,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasText
@@ -44,7 +42,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.NewsResourceType.Vid
 import com.google.samples.apps.nowinandroid.core.model.data.SaveableNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.Topic
 import kotlinx.datetime.Instant
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -67,8 +65,8 @@ class ForYouScreenTest {
                     windowSizeClass = WindowSizeClass.calculateFromSize(
                         DpSize(maxWidth, maxHeight)
                     ),
-                    interestsSelectionState = ForYouInterestsSelectionState.Loading,
-                    feedState = ForYouFeedState.Loading,
+                    interestsSelectionState = ForYouInterestsSelectionUiState.Loading,
+                    feedState = ForYouFeedUiState.Loading,
                     onAuthorCheckedChanged = { _, _ -> },
                     onTopicCheckedChanged = { _, _ -> },
                     saveFollowedTopics = {},
@@ -85,75 +83,19 @@ class ForYouScreenTest {
     }
 
     @Test
-    fun topicSelector_whenNoTopicsSelected_showsTopicChipsAndDisabledDoneButton() {
+    fun topicSelector_whenNoTopicsSelected_showsAuthorAndTopicChipsAndDisabledDoneButton() {
         composeTestRule.setContent {
             BoxWithConstraints {
                 ForYouScreen(
                     windowSizeClass = WindowSizeClass.calculateFromSize(
                         DpSize(maxWidth, maxHeight)
                     ),
-                    interestsSelectionState = ForYouInterestsSelectionState.WithInterestsSelection(
-                        topics = listOf(
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "0",
-                                    name = "Headlines",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "1",
-                                    name = "UI",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "2",
-                                    name = "Tools",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                        ),
-                        authors = listOf(
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "0",
-                                    name = "Android Dev",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "1",
-                                    name = "Android Dev 2",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = false
-                            ),
-                        )
+                    interestsSelectionState =
+                    ForYouInterestsSelectionUiState.WithInterestsSelection(
+                        topics = testTopics,
+                        authors = testAuthors
                     ),
-                    feedState = ForYouFeedState.Success(
+                    feedState = ForYouFeedUiState.Success(
                         feed = emptyList()
                     ),
                     onAuthorCheckedChanged = { _, _ -> },
@@ -164,20 +106,19 @@ class ForYouScreenTest {
             }
         }
 
-        composeTestRule
-            .onNodeWithText("Headlines")
-            .assertIsDisplayed()
-            .assertHasClickAction()
+        testAuthors.forEach { testAuthor ->
+            composeTestRule
+                .onNodeWithText(testAuthor.author.name)
+                .assertIsDisplayed()
+                .assertHasClickAction()
+        }
 
-        composeTestRule
-            .onNodeWithText("UI")
-            .assertIsDisplayed()
-            .assertHasClickAction()
-
-        composeTestRule
-            .onNodeWithText("Tools")
-            .assertIsDisplayed()
-            .assertHasClickAction()
+        testTopics.forEach { testTopic ->
+            composeTestRule
+                .onNodeWithText(testTopic.topic.name)
+                .assertIsDisplayed()
+                .assertHasClickAction()
+        }
 
         // Scroll until the Done button is visible
         composeTestRule
@@ -193,75 +134,22 @@ class ForYouScreenTest {
     }
 
     @Test
-    fun topicSelector_whenSomeTopicsSelected_showsTopicChipsAndEnabledDoneButton() {
+    fun topicSelector_whenSomeTopicsSelected_showsAuthorAndTopicChipsAndEnabledDoneButton() {
         composeTestRule.setContent {
             BoxWithConstraints {
                 ForYouScreen(
                     windowSizeClass = WindowSizeClass.calculateFromSize(
                         DpSize(maxWidth, maxHeight)
                     ),
-                    interestsSelectionState = ForYouInterestsSelectionState.WithInterestsSelection(
-                        topics = listOf(
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "0",
-                                    name = "Headlines",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "1",
-                                    name = "UI",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = true
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "2",
-                                    name = "Tools",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                        ),
-                        authors = listOf(
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "0",
-                                    name = "Android Dev",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "1",
-                                    name = "Android Dev 2",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = false
-                            ),
-                        ),
+                    interestsSelectionState =
+                    ForYouInterestsSelectionUiState.WithInterestsSelection(
+                        // Follow one topic
+                        topics = testTopics.mapIndexed { index, testTopic ->
+                            testTopic.copy(isFollowed = index == 1)
+                        },
+                        authors = testAuthors
                     ),
-                    feedState = ForYouFeedState.Success(
+                    feedState = ForYouFeedUiState.Success(
                         feed = emptyList()
                     ),
                     onAuthorCheckedChanged = { _, _ -> },
@@ -272,26 +160,19 @@ class ForYouScreenTest {
             }
         }
 
-        composeTestRule
-            .onNodeWithText("Headlines")
-            .assertIsDisplayed()
-            .assertHasClickAction()
+        testAuthors.forEach { testAuthor ->
+            composeTestRule
+                .onNodeWithText(testAuthor.author.name)
+                .assertIsDisplayed()
+                .assertHasClickAction()
+        }
 
-        composeTestRule
-            .onNodeWithText("UI")
-            .assertIsDisplayed()
-            .assertHasClickAction()
-
-        composeTestRule
-            .onNodeWithText("Tools")
-            .assertIsDisplayed()
-            .assertHasClickAction()
-
-        composeTestRule
-            .onNodeWithText("Android Dev")
-            .assertIsDisplayed()
-            .assertIsOff()
-            .assertHasClickAction()
+        testTopics.forEach { testTopic ->
+            composeTestRule
+                .onNodeWithText(testTopic.topic.name)
+                .assertIsDisplayed()
+                .assertHasClickAction()
+        }
 
         // Scroll until the Done button is visible
         composeTestRule
@@ -307,75 +188,22 @@ class ForYouScreenTest {
     }
 
     @Test
-    fun topicSelector_whenSomeAuthorsSelected_showsTopicChipsAndEnabledDoneButton() {
+    fun topicSelector_whenSomeAuthorsSelected_showsAuthorAndTopicChipsAndEnabledDoneButton() {
         composeTestRule.setContent {
             BoxWithConstraints {
                 ForYouScreen(
                     windowSizeClass = WindowSizeClass.calculateFromSize(
                         DpSize(maxWidth, maxHeight)
                     ),
-                    interestsSelectionState = ForYouInterestsSelectionState.WithInterestsSelection(
-                        topics = listOf(
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "0",
-                                    name = "Headlines",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "1",
-                                    name = "UI",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = true
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "2",
-                                    name = "Tools",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                        ),
-                        authors = listOf(
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "0",
-                                    name = "Android Dev",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "1",
-                                    name = "Android Dev 2",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = false
-                            ),
-                        ),
+                    interestsSelectionState =
+                    ForYouInterestsSelectionUiState.WithInterestsSelection(
+                        // Follow one topic
+                        topics = testTopics,
+                        authors = testAuthors.mapIndexed { index, testAuthor ->
+                            testAuthor.copy(isFollowed = index == 1)
+                        }
                     ),
-                    feedState = ForYouFeedState.Success(
+                    feedState = ForYouFeedUiState.Success(
                         feed = emptyList()
                     ),
                     onAuthorCheckedChanged = { _, _ -> },
@@ -386,26 +214,19 @@ class ForYouScreenTest {
             }
         }
 
-        composeTestRule
-            .onNodeWithText("Headlines")
-            .assertIsDisplayed()
-            .assertHasClickAction()
+        testAuthors.forEach { testAuthor ->
+            composeTestRule
+                .onNodeWithText(testAuthor.author.name)
+                .assertIsDisplayed()
+                .assertHasClickAction()
+        }
 
-        composeTestRule
-            .onNodeWithText("UI")
-            .assertIsDisplayed()
-            .assertHasClickAction()
-
-        composeTestRule
-            .onNodeWithText("Tools")
-            .assertIsDisplayed()
-            .assertHasClickAction()
-
-        composeTestRule
-            .onNodeWithText("Android Dev")
-            .assertIsDisplayed()
-            .assertIsOff()
-            .assertHasClickAction()
+        testTopics.forEach { testTopic ->
+            composeTestRule
+                .onNodeWithText(testTopic.topic.name)
+                .assertIsDisplayed()
+                .assertHasClickAction()
+        }
 
         // Scroll until the Done button is visible
         composeTestRule
@@ -428,68 +249,12 @@ class ForYouScreenTest {
                     windowSizeClass = WindowSizeClass.calculateFromSize(
                         DpSize(maxWidth, maxHeight)
                     ),
-                    interestsSelectionState = ForYouInterestsSelectionState.WithInterestsSelection(
-                        topics = listOf(
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "0",
-                                    name = "Headlines",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "1",
-                                    name = "UI",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                            FollowableTopic(
-                                topic = Topic(
-                                    id = "2",
-                                    name = "Tools",
-                                    shortDescription = "",
-                                    longDescription = "",
-                                    url = "",
-                                    imageUrl = ""
-                                ),
-                                isFollowed = false
-                            ),
-                        ),
-                        authors = listOf(
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "0",
-                                    name = "Android Dev",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = true
-                            ),
-                            FollowableAuthor(
-                                author = Author(
-                                    id = "1",
-                                    name = "Android Dev 2",
-                                    imageUrl = "",
-                                    twitter = "",
-                                    mediumPage = "",
-                                    bio = "",
-                                ),
-                                isFollowed = false
-                            ),
-                        ),
+                    interestsSelectionState =
+                    ForYouInterestsSelectionUiState.WithInterestsSelection(
+                        topics = testTopics,
+                        authors = testAuthors
                     ),
-                    feedState = ForYouFeedState.Loading,
+                    feedState = ForYouFeedUiState.Loading,
                     onAuthorCheckedChanged = { _, _ -> },
                     onTopicCheckedChanged = { _, _ -> },
                     saveFollowedTopics = {},
@@ -523,8 +288,8 @@ class ForYouScreenTest {
                     windowSizeClass = WindowSizeClass.calculateFromSize(
                         DpSize(maxWidth, maxHeight)
                     ),
-                    interestsSelectionState = ForYouInterestsSelectionState.NoInterestsSelection,
-                    feedState = ForYouFeedState.Loading,
+                    interestsSelectionState = ForYouInterestsSelectionUiState.NoInterestsSelection,
+                    feedState = ForYouFeedUiState.Loading,
                     onAuthorCheckedChanged = { _, _ -> },
                     onTopicCheckedChanged = { _, _ -> },
                     saveFollowedTopics = {},
@@ -554,87 +319,6 @@ class ForYouScreenTest {
     fun feed_whenNoInterestsSelectionAndLoaded_showsFeed() {
         lateinit var windowSizeClass: WindowSizeClass
 
-        val saveableNewsResources = listOf(
-            SaveableNewsResource(
-                newsResource = NewsResource(
-                    id = "1",
-                    episodeId = "52",
-                    title = "Thanks for helping us reach 1M YouTube Subscribers",
-                    content = "Thank you everyone for following the Now in Android series " +
-                        "and everything the Android Developers YouTube channel has to offer. " +
-                        "During the Android Developer Summit, our YouTube channel reached 1 " +
-                        "million subscribers! Here’s a small video to thank you all.",
-                    url = "https://youtu.be/-fJ6poHQrjM",
-                    headerImageUrl = "https://i.ytimg.com/vi/-fJ6poHQrjM/maxresdefault.jpg",
-                    publishDate = Instant.parse("2021-11-09T00:00:00.000Z"),
-                    type = Video,
-                    topics = listOf(
-                        Topic(
-                            id = "0",
-                            name = "Headlines",
-                            shortDescription = "",
-                            longDescription = "",
-                            url = "",
-                            imageUrl = ""
-                        )
-                    ),
-                    authors = emptyList()
-                ),
-                isSaved = false
-            ),
-            SaveableNewsResource(
-                newsResource = NewsResource(
-                    id = "2",
-                    episodeId = "52",
-                    title = "Transformations and customisations in the Paging Library",
-                    content = "A demonstration of different operations that can be performed " +
-                        "with Paging. Transformations like inserting separators, when to " +
-                        "create a new pager, and customisation options for consuming " +
-                        "PagingData.",
-                    url = "https://youtu.be/ZARz0pjm5YM",
-                    headerImageUrl = "https://i.ytimg.com/vi/ZARz0pjm5YM/maxresdefault.jpg",
-                    publishDate = Instant.parse("2021-11-01T00:00:00.000Z"),
-                    type = Video,
-                    topics = listOf(
-                        Topic(
-                            id = "1",
-                            name = "UI",
-                            shortDescription = "",
-                            longDescription = "",
-                            url = "",
-                            imageUrl = ""
-                        ),
-                    ),
-                    authors = emptyList()
-                ),
-                isSaved = false
-            ),
-            SaveableNewsResource(
-                newsResource = NewsResource(
-                    id = "3",
-                    episodeId = "52",
-                    title = "Community tip on Paging",
-                    content = "Tips for using the Paging library from the developer community",
-                    url = "https://youtu.be/r5JgIyS3t3s",
-                    headerImageUrl = "https://i.ytimg.com/vi/r5JgIyS3t3s/maxresdefault.jpg",
-                    publishDate = Instant.parse("2021-11-08T00:00:00.000Z"),
-                    type = Video,
-                    topics = listOf(
-                        Topic(
-                            id = "1",
-                            name = "UI",
-                            shortDescription = "",
-                            longDescription = "",
-                            url = "",
-                            imageUrl = ""
-                        ),
-                    ),
-                    authors = emptyList()
-                ),
-                isSaved = false
-            ),
-        )
-
         composeTestRule.setContent {
             BoxWithConstraints {
                 windowSizeClass = WindowSizeClass.calculateFromSize(
@@ -643,9 +327,9 @@ class ForYouScreenTest {
 
                 ForYouScreen(
                     windowSizeClass = windowSizeClass,
-                    interestsSelectionState = ForYouInterestsSelectionState.NoInterestsSelection,
-                    feedState = ForYouFeedState.Success(
-                        feed = saveableNewsResources
+                    interestsSelectionState = ForYouInterestsSelectionUiState.NoInterestsSelection,
+                    feedState = ForYouFeedUiState.Success(
+                        feed = testNewsResources
                     ),
                     onAuthorCheckedChanged = { _, _ -> },
                     onTopicCheckedChanged = { _, _ -> },
@@ -655,47 +339,146 @@ class ForYouScreenTest {
             }
         }
 
-        // Scroll until the second feed item is visible
-        // This will cause both the first and second feed items to be visible at the same time,
-        // so we can compare their positions to each other.
-        composeTestRule
-            .onAllNodes(hasScrollToNodeAction())
-            .onFirst()
-            .performScrollToNode(
-                hasText(
-                    "Transformations and customisations in the Paging Library",
-                    substring = true
-                )
-            )
-
         val firstFeedItem = composeTestRule
-            .onNodeWithText("Thanks for helping us reach 1M YouTube Subscribers", substring = true)
+            .onNodeWithText(
+                testNewsResources[0].newsResource.title,
+                substring = true
+            )
             .assertHasClickAction()
             .fetchSemanticsNode()
 
         val secondFeedItem = composeTestRule
             .onNodeWithText(
-                "Transformations and customisations in the Paging Library",
+                testNewsResources[1].newsResource.title,
                 substring = true
             )
             .assertHasClickAction()
             .fetchSemanticsNode()
 
         when (windowSizeClass.widthSizeClass) {
-            WindowWidthSizeClass.Compact, Companion.Medium -> {
+            WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> {
                 // On smaller screen widths, the second feed item should be below the first because
                 // they are displayed in a single column
-                assertTrue(
+                Assert.assertTrue(
                     firstFeedItem.positionInRoot.y < secondFeedItem.positionInRoot.y
                 )
             }
             else -> {
                 // On larger screen widths, the second feed item should be inline with the first
                 // because they are displayed in more than one column
-                assertTrue(
+                Assert.assertTrue(
                     firstFeedItem.positionInRoot.y == secondFeedItem.positionInRoot.y
                 )
             }
         }
     }
 }
+
+private val testTopic = Topic(
+    id = "",
+    name = "",
+    shortDescription = "",
+    longDescription = "",
+    url = "",
+    imageUrl = ""
+)
+private val testAuthor = Author(
+    id = "",
+    name = "",
+    imageUrl = "",
+    twitter = "",
+    mediumPage = "",
+    bio = ""
+)
+private val testTopics = listOf(
+    FollowableTopic(
+        topic = testTopic.copy(id = "0", name = "Headlines"),
+        isFollowed = false
+    ),
+    FollowableTopic(
+        topic = testTopic.copy(id = "1", name = "UI"),
+        isFollowed = false
+    ),
+    FollowableTopic(
+        topic = testTopic.copy(id = "2", name = "Tools"),
+        isFollowed = false
+    ),
+)
+private val testAuthors = listOf(
+    FollowableAuthor(
+        author = testAuthor.copy(id = "0", name = "Android Dev"),
+        isFollowed = false
+    ),
+    FollowableAuthor(
+        author = testAuthor.copy(id = "1", name = "Android Dev 2"),
+        isFollowed = false
+    ),
+)
+private val testNewsResources = listOf(
+    SaveableNewsResource(
+        newsResource = NewsResource(
+            id = "1",
+            episodeId = "52",
+            title = "Small Title",
+            content = "small.",
+            url = "https://youtu.be/-fJ6poHQrjM",
+            headerImageUrl = null,
+            publishDate = Instant.parse("2021-11-09T00:00:00.000Z"),
+            type = Video,
+            topics = emptyList(),
+            authors = emptyList()
+        ),
+        isSaved = false
+    ),
+    SaveableNewsResource(
+        newsResource = NewsResource(
+            id = "2",
+            episodeId = "52",
+            title = "Transformations and customisations in the Paging Library",
+            content = "A demonstration of different operations that can be performed " +
+                "with Paging. Transformations like inserting separators, when to " +
+                "create a new pager, and customisation options for consuming " +
+                "PagingData.",
+            url = "https://youtu.be/ZARz0pjm5YM",
+            headerImageUrl = "https://i.ytimg.com/vi/ZARz0pjm5YM/maxresdefault.jpg",
+            publishDate = Instant.parse("2021-11-01T00:00:00.000Z"),
+            type = Video,
+            topics = listOf(
+                Topic(
+                    id = "1",
+                    name = "UI",
+                    shortDescription = "",
+                    longDescription = "",
+                    url = "",
+                    imageUrl = ""
+                ),
+            ),
+            authors = emptyList()
+        ),
+        isSaved = false
+    ),
+    SaveableNewsResource(
+        newsResource = NewsResource(
+            id = "3",
+            episodeId = "52",
+            title = "Community tip on Paging",
+            content = "Tips for using the Paging library from the developer community",
+            url = "https://youtu.be/r5JgIyS3t3s",
+            headerImageUrl = "https://i.ytimg.com/vi/r5JgIyS3t3s/maxresdefault.jpg",
+            publishDate = Instant.parse("2021-11-08T00:00:00.000Z"),
+            type = Video,
+            topics = listOf(
+                Topic(
+                    id = "1",
+                    name = "UI",
+                    shortDescription = "",
+                    longDescription = "",
+                    url = "",
+                    imageUrl = ""
+                ),
+            ),
+            authors = emptyList()
+        ),
+        isSaved = false
+    ),
+)

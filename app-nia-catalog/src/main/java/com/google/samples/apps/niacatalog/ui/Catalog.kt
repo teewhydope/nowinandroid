@@ -17,7 +17,6 @@
 package com.google.samples.apps.niacatalog.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
@@ -37,20 +36,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaDropdownMenuButton
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaFilledButton
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaFilterChip
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaNavigationBar
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaNavigationBarItem
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaOutlinedButton
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaTab
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaTabRow
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaTextButton
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaToggleButton
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaTopicTag
-import com.google.samples.apps.nowinandroid.core.ui.component.NiaViewToggleButton
-import com.google.samples.apps.nowinandroid.core.ui.icon.NiaIcons
-import com.google.samples.apps.nowinandroid.core.ui.theme.NiaTheme
+import com.google.accompanist.flowlayout.FlowRow
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaDropdownMenuButton
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaFilledButton
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaFilterChip
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaNavigationBar
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaNavigationBarItem
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaOutlinedButton
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaTab
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaTabRow
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaTextButton
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaToggleButton
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaTopicTag
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaViewToggleButton
+import com.google.samples.apps.nowinandroid.core.designsystem.icon.NiaIcons
+import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 
 /**
  * Now in Android component catalog.
@@ -76,7 +76,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Buttons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(onClick = {}) {
                             Text(text = "Enabled")
                         }
@@ -90,7 +90,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Disabled buttons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             enabled = false
@@ -113,7 +113,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Buttons with leading icons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             text = { Text(text = "Enabled") },
@@ -139,7 +139,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Disabled buttons with leading icons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             enabled = false,
@@ -168,7 +168,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Buttons with trailing icons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             text = { Text(text = "Enabled") },
@@ -194,7 +194,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Disabled buttons with trailing icons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             enabled = false,
@@ -223,7 +223,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Small buttons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             small = true
@@ -246,7 +246,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Disabled small buttons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             enabled = false,
@@ -272,7 +272,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Small buttons with leading icons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             small = true,
@@ -306,7 +306,7 @@ fun NiaCatalog() {
                     )
                 }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             enabled = false,
@@ -338,7 +338,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Small buttons with trailing icons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             small = true,
@@ -372,7 +372,7 @@ fun NiaCatalog() {
                     )
                 }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         NiaFilledButton(
                             onClick = {},
                             enabled = false,
@@ -413,31 +413,31 @@ fun NiaCatalog() {
                 }
                 item { Text("Chips", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         var firstChecked by remember { mutableStateOf(false) }
                         NiaFilterChip(
-                            checked = firstChecked,
-                            onCheckedChange = { checked -> firstChecked = checked },
-                            text = { Text(text = "Enabled".uppercase()) }
+                            selected = firstChecked,
+                            onSelectedChange = { checked -> firstChecked = checked },
+                            label = { Text(text = "Enabled".uppercase()) }
                         )
                         var secondChecked by remember { mutableStateOf(true) }
                         NiaFilterChip(
-                            checked = secondChecked,
-                            onCheckedChange = { checked -> secondChecked = checked },
-                            text = { Text(text = "Enabled".uppercase()) }
+                            selected = secondChecked,
+                            onSelectedChange = { checked -> secondChecked = checked },
+                            label = { Text(text = "Enabled".uppercase()) }
                         )
                         var thirdChecked by remember { mutableStateOf(true) }
                         NiaFilterChip(
-                            checked = thirdChecked,
-                            onCheckedChange = { checked -> thirdChecked = checked },
+                            selected = thirdChecked,
+                            onSelectedChange = { checked -> thirdChecked = checked },
                             enabled = false,
-                            text = { Text(text = "Disabled".uppercase()) }
+                            label = { Text(text = "Disabled".uppercase()) }
                         )
                     }
                 }
                 item { Text("Toggle buttons", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         var firstChecked by remember { mutableStateOf(false) }
                         NiaToggleButton(
                             checked = firstChecked,
@@ -498,7 +498,7 @@ fun NiaCatalog() {
                 }
                 item { Text("View toggle", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         var firstExpanded by remember { mutableStateOf(false) }
                         NiaViewToggleButton(
                             expanded = firstExpanded,
@@ -517,7 +517,7 @@ fun NiaCatalog() {
                 }
                 item { Text("Tags", Modifier.padding(top = 16.dp)) }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FlowRow(mainAxisSpacing = 16.dp) {
                         var firstFollowed by remember { mutableStateOf(false) }
                         NiaTopicTag(
                             followed = firstFollowed,
